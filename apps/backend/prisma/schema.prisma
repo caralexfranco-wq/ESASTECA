@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  ADMIN
+  CAPTURISTA
+  CONSULTOR
+}
+
+enum CaseState {
+  ABIERTO
+  EN_RIESGO
+  VENCIDO
+  CERRADO
+}
+
+enum TrafficLight {
+  VERDE
+  AMARILLO
+  ROJO
+  GRIS
+}
+
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+}
+
+model Role {
+  id    Int      @id @default(autoincrement())
+  name  RoleName @unique
+  users User[]
+}
+
+model User {
+  id             String              @id @default(cuid())
+  fullName       String
+  email          String              @unique
+  passwordHash   String
+  phone          String?
+  isActive       Boolean             @default(true)
+  roleId         Int
+  refreshToken   String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  role           Role                @relation(fields: [roleId], references: [id])
+  assignedCases  CaseFile[]          @relation("CaseResponsible")
+  caseUpdates    CaseStatusHistory[]
+  notifications  NotificationLog[]
+  audits         AuditLog[]          @relation("AuditActor")
+}
+
+model ClientCompany {
+  id           String     @id @default(cuid())
+  name         String
+  businessType String
+  contactName  String?
+  email        String?
+  phone        String?
+  address      String?
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  cases        CaseFile[]
+
+  @@index([name])
+}
+
+model CaseFile {
+  id                String              @id @default(cuid())
+  folio             String              @unique
+  clientId          String
+  type              String
+  shortDescription  String
+  responsibleLawyer String
+  createdById       String
+  startDate         DateTime
+  dueDate           DateTime
+  closedAt          DateTime?
+  state             CaseState           @default(ABIERTO)
+  progressPercent   Int                 @default(0)
+  currentStage      String?
+  internalNotes     String?
+  attachmentPath    String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  client            ClientCompany       @relation(fields: [clientId], references: [id])
+  responsible       User                @relation("CaseResponsible", fields: [responsibleLawyer], references: [id])
+  createdBy         User                @relation(fields: [createdById], references: [id])
+  history           CaseStatusHistory[]
+  notifications     NotificationLog[]
+
+  @@index([dueDate])
+  @@index([state])
+  @@index([responsibleLawyer])
+}
+
+model CaseStatusHistory {
+  id          String   @id @default(cuid())
+  caseId       String
+  updatedById  String
+  progress     Int?
+  stage        String?
+  comment      String
+  createdAt    DateTime @default(now())
+  case         CaseFile  @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  updatedBy    User      @relation(fields: [updatedById], references: [id])
+}
+
+model NotificationLog {
+  id        String              @id @default(cuid())
+  caseId     String?
+  userId     String
+  channel    NotificationChannel
+  type       String
+  status     String
+  payload    Json
+  error      String?
+  sentAt     DateTime            @default(now())
+  case       CaseFile?           @relation(fields: [caseId], references: [id], onDelete: SetNull)
+  user       User                @relation(fields: [userId], references: [id])
+
+  @@index([type, sentAt])
+  @@index([caseId, type])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  entity     String
+  entityId   String
+  action     String
+  diff       Json
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+}
+
+model Settings {
+  id             Int      @id @default(1)
+  warningDays    Int      @default(7)
+  digestHour     Int      @default(8)
+  digestMinute   Int      @default(0)
+  alertHourly    Boolean  @default(true)
+  cooldownHours  Int      @default(24)
+  preferredChannel String @default("EMAIL")
+  updatedAt      DateTime @updatedAt
+}

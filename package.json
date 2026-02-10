@@ -1,0 +1,19 @@
+{
+  "name": "esasteca-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/backend",
+    "apps/frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
+    "build": "npm run build -w apps/backend && npm run build -w apps/frontend",
+    "migrate": "npm run migrate -w apps/backend",
+    "seed": "npm run seed -w apps/backend",
+    "smoke": "npm run smoke -w apps/backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
