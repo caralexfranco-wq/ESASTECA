@@ -1,0 +1,4 @@
+<div class="row g-3">
+  <div class="col-lg-6 table-wrap"><h5>Audit log</h5><table class="table table-sm"><thead><tr><th>Fecha</th><th>Actor</th><th>Entidad</th><th>Acción</th></tr></thead><tbody><?php foreach($audit as $a):?><tr><td><?=$a['created_at']?></td><td><?=e($a['actor_name']??'sistema')?></td><td><?=e($a['entity'])?>#<?=$a['entity_id']?></td><td><?=e($a['action'])?></td></tr><?php endforeach;?></tbody></table></div>
+  <div class="col-lg-6 table-wrap"><h5>Notification log</h5><table class="table table-sm"><thead><tr><th>Fecha</th><th>Canal</th><th>Destino</th><th>Status</th></tr></thead><tbody><?php foreach($notifications as $n):?><tr><td><?=$n['created_at']?></td><td><?=e($n['channel'])?></td><td><?=e($n['to_address'])?></td><td><?=e($n['status'])?></td></tr><?php endforeach;?></tbody></table></div>
+</div>

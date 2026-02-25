@@ -1,0 +1,12 @@
+:root { --sidebar:#223047; --accent:#0d6efd; }
+body { background:#f4f6f9; }
+.sidebar { width:240px; min-height:100vh; background:linear-gradient(180deg,#23364f,#1a2637); color:#fff; }
+.sidebar a { color:#d8e6ff; text-decoration:none; display:block; padding:.65rem 1rem; border-radius:.5rem; }
+.sidebar a:hover,.sidebar a.active { background:rgba(255,255,255,.12); color:#fff; }
+.ribbon .btn { min-width:110px; }
+.status-badge { font-weight:600; }
+.status-green { background:#198754; }
+.status-yellow { background:#ffc107; color:#222; }
+.status-red { background:#dc3545; }
+.status-gray { background:#6c757d; }
+.table-wrap { background:#fff; border-radius:.75rem; box-shadow:0 1px 4px rgba(0,0,0,.08); padding:1rem; }
